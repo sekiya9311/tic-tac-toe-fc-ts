@@ -3,19 +3,28 @@ import ReactDOM from "react-dom";
 import "./index.css";
 
 interface SquareProps {
-  value: number;
+  value: string | null;
+  onClick: () => void;
 }
 const Square: React.FC<SquareProps> = (props: SquareProps) => {
-  const [value, setValue] = useState<string | null>(null);
   return (
-    <button className="square" onClick={() => setValue("X")}>
-      {value}
+    <button className="square" onClick={() => props.onClick()}>
+      {props.value}
     </button>
   );
 };
 
 const Board: React.FC = () => {
-  const renderSquare = (i: number) => <Square value={i} />;
+  const [squares, setSquares] = useState(Array<string | null>(9).fill(null));
+
+  const handleClick = (i: number) => {
+    const newSquares = squares.slice();
+    newSquares[i] = "X";
+    setSquares(newSquares);
+  };
+  const renderSquare = (i: number) => (
+    <Square value={squares[i]} onClick={() => handleClick(i)} />
+  );
 
   const status = "Next player: X";
 
