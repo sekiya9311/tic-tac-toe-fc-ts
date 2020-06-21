@@ -36,30 +36,17 @@ const Square: React.FC<SquareProps> = (props: SquareProps) => {
   );
 };
 
-const Board: React.FC = () => {
-  const [squares, setSquares] = useState(Array<string | null>(9).fill(null));
-  const [xIsNext, setXIsNext] = useState(true);
-  const currentPlayer = xIsNext ? "X" : "O";
-
-  const handleClick = (i: number) => {
-    const newSquares = squares.slice();
-    if (calculateWinner(newSquares) || newSquares[i]) {
-      return;
-    }
-    newSquares[i] = currentPlayer;
-    setSquares(newSquares);
-    setXIsNext((x) => !x);
-  };
+interface BoardProps {
+  squares: ReadonlyArray<string | null>;
+  onClick: (i: number) => void;
+}
+const Board: React.FC<BoardProps> = (props: BoardProps) => {
   const renderSquare = (i: number) => (
-    <Square value={squares[i]} onClick={() => handleClick(i)} />
+    <Square value={props.squares[i]} onClick={() => props.onClick(i)} />
   );
-
-  const winner = calculateWinner(squares);
-  const status = winner ? `Winner: ${winner}` : `Next player: ${currentPlayer}`;
 
   return (
     <div>
-      <div className="status">{status}</div>
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}
@@ -80,13 +67,33 @@ const Board: React.FC = () => {
 };
 
 const Game: React.FC = () => {
+  const [history, setHistory] = useState([
+    { squares: Array<string | null>(9).fill(null) },
+  ]);
+  const [xIsNext, setXIsNext] = useState(true);
+
+  const currentPlayer = xIsNext ? "X" : "O";
+  const current = history[history.length - 1];
+  const winner = calculateWinner(current.squares);
+  const status = winner ? `Winner: ${winner}` : `Next player: ${currentPlayer}`;
+
+  const handleClick = (i: number) => {
+    const newSquares = current.squares.slice();
+    if (calculateWinner(newSquares) || newSquares[i]) {
+      return;
+    }
+    newSquares[i] = currentPlayer;
+    setHistory((curHistory) => curHistory.concat([{ squares: newSquares }]));
+    setXIsNext((x) => !x);
+  };
+
   return (
     <div className="game">
       <div className="game-board">
-        <Board />
+        <Board squares={current.squares} onClick={(i) => handleClick(i)} />
       </div>
       <div className="game-info">
-        <div>{/* status */}</div>
+        <div>{status}</div>
         <ol>{/* TODO */}</ol>
       </div>
     </div>
