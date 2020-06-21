@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
+const range = (length: number) => [...Array(length)].map((_, i) => i);
+
 const ROW_LENGTH = 3;
 const COL_LENGTH = 3;
 
@@ -70,21 +72,15 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 
   return (
     <div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
+      {range(ROW_LENGTH).map((r) => (
+        <div className="board-row" key={r}>
+          {range(COL_LENGTH).map((c) => (
+            <React.Fragment key={c}>
+              {renderSquare(r * ROW_LENGTH + c)}
+            </React.Fragment>
+          ))}
+        </div>
+      ))}
     </div>
   );
 };
