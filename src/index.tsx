@@ -70,30 +70,38 @@ const Game: React.FC = () => {
   const [history, setHistory] = useState([
     { squares: Array<string | null>(9).fill(null) },
   ]);
+  const [stepNumber, setStepNumber] = useState(0);
   const [xIsNext, setXIsNext] = useState(true);
 
   const currentPlayer = xIsNext ? "X" : "O";
-  const current = history[history.length - 1];
+  const current = history[stepNumber];
   const winner = calculateWinner(current.squares);
   const status = winner ? `Winner: ${winner}` : `Next player: ${currentPlayer}`;
 
+  const jumpTo = (step: number) => {
+    setStepNumber(step);
+    setXIsNext(step % 2 === 0);
+  };
   const moves = history.map((step, move) => {
     const desc = move ? "Go to move #" + move : "Go to game start";
     return (
-      <li>
-        {/* TypeScript なので jumpTo 関数が未実装だとちゃんとエラーになる!! */}
-        <button /* onClick={() => jumpTo(move)} */>{desc}</button>
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{desc}</button>
       </li>
     );
   });
 
   const handleClick = (i: number) => {
-    const newSquares = current.squares.slice();
+    const targetHistory = history.slice(0, stepNumber + 1);
+    const targetCurrent = targetHistory[targetHistory.length - 1];
+    const newSquares = targetCurrent.squares.slice();
     if (calculateWinner(newSquares) || newSquares[i]) {
       return;
     }
+
     newSquares[i] = currentPlayer;
-    setHistory((curHistory) => curHistory.concat([{ squares: newSquares }]));
+    setHistory(targetHistory.concat([{ squares: newSquares }]));
+    setStepNumber(targetHistory.length);
     setXIsNext((x) => !x);
   };
 
