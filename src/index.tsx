@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
@@ -6,7 +6,12 @@ interface SquareProps {
   value: number;
 }
 const Square: React.FC<SquareProps> = (props: SquareProps) => {
-  return <button className="square">{props.value}</button>;
+  const [value, setValue] = useState<string | null>(null);
+  return (
+    <button className="square" onClick={() => setValue("X")}>
+      {value}
+    </button>
+  );
 };
 
 const Board: React.FC = () => {
