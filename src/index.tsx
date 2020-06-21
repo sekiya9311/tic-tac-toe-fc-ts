@@ -91,6 +91,7 @@ const Game: React.FC = () => {
   ]);
   const [stepNumber, setStepNumber] = useState(0);
   const [xIsNext, setXIsNext] = useState(true);
+  const [orderAsc, setOrderAsc] = useState(true);
 
   const currentPlayer = xIsNext ? "X" : "O";
   const current = history[stepNumber];
@@ -132,6 +133,10 @@ const Game: React.FC = () => {
     setXIsNext((x) => !x);
   };
 
+  const handleOrderClick = () => {
+    setOrderAsc((x) => !x);
+  };
+
   return (
     <div className="game">
       <div className="game-board">
@@ -139,7 +144,10 @@ const Game: React.FC = () => {
       </div>
       <div className="game-info">
         <div>{status}</div>
-        <ol>{moves}</ol>
+        <div>
+          <button onClick={handleOrderClick}>{orderAsc ? "⇧" : "⇩"}</button>
+        </div>
+        <ol>{orderAsc ? moves : moves.reverse()}</ol>
       </div>
     </div>
   );
