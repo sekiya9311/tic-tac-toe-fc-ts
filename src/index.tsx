@@ -115,7 +115,9 @@ const Game: React.FC = () => {
 
     return (
       <li key={move}>
-        <button onClick={() => jumpTo(move)}>{desc}</button>
+        <button onClick={() => jumpTo(move)}>
+          {move === stepNumber ? <b>{desc}</b> : desc}
+        </button>
       </li>
     );
   });
