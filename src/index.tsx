@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
+const ROW_LENGTH = 3;
+const COL_LENGTH = 3;
+
 const calculateWinner = (
   squares: ReadonlyArray<string | null>
 ): string | null => {
@@ -23,6 +26,26 @@ const calculateWinner = (
   }
   return null;
 };
+
+interface Location {
+  row: number;
+  col: number;
+}
+const calcCurrentMoveLocation = (
+  prevSquares: ReadonlyArray<string | null>,
+  curSquares: ReadonlyArray<string | null>
+): Location => {
+  for (let r = 0; r < ROW_LENGTH; r++) {
+    for (let c = 0; c < COL_LENGTH; c++) {
+      const curIndex = r * ROW_LENGTH + c;
+      if (prevSquares[curIndex] !== curSquares[curIndex])
+        return { row: r, col: c };
+    }
+  }
+  // ここには来ないので
+  throw Error();
+};
+const toString = (value: Location) => `(${value.row}, ${value.col})`;
 
 interface SquareProps {
   value: string | null;
@@ -68,7 +91,7 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 
 const Game: React.FC = () => {
   const [history, setHistory] = useState([
-    { squares: Array<string | null>(9).fill(null) },
+    { squares: Array<string | null>(ROW_LENGTH * COL_LENGTH).fill(null) },
   ]);
   const [stepNumber, setStepNumber] = useState(0);
   const [xIsNext, setXIsNext] = useState(true);
@@ -83,7 +106,13 @@ const Game: React.FC = () => {
     setXIsNext(step % 2 === 0);
   };
   const moves = history.map((step, move) => {
-    const desc = move ? "Go to move #" + move : "Go to game start";
+    const prevHistory = history[move - 1];
+    const desc = move
+      ? `Go to move #${move} location: ${toString(
+          calcCurrentMoveLocation(prevHistory.squares, step.squares)
+        )}`
+      : "Go to game start";
+
     return (
       <li key={move}>
         <button onClick={() => jumpTo(move)}>{desc}</button>
