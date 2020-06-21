@@ -34,6 +34,8 @@ const calculateWinner = (
   }
   return null;
 };
+const isDraw = (squares: ReadonlyArray<string | null>): boolean =>
+  !squares.includes(null);
 
 const calcCurrentMoveLocation = (
   prevSquares: ReadonlyArray<string | null>,
@@ -114,6 +116,8 @@ const Game: React.FC = () => {
   const winner = calculateWinner(current.squares);
   const status = winner
     ? `Winner: ${winner.winner}`
+    : isDraw(current.squares)
+    ? "Draw"
     : `Next player: ${currentPlayer}`;
 
   const jumpTo = (step: number) => {
