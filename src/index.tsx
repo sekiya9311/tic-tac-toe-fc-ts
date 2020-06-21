@@ -8,7 +8,7 @@ interface SquareProps {
 }
 const Square: React.FC<SquareProps> = (props: SquareProps) => {
   return (
-    <button className="square" onClick={() => props.onClick()}>
+    <button className="square" onClick={props.onClick}>
       {props.value}
     </button>
   );
