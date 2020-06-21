@@ -4,12 +4,17 @@ import "./index.css";
 
 const range = (length: number) => [...Array(length)].map((_, i) => i);
 
+interface Location {
+  row: number;
+  col: number;
+}
 const ROW_LENGTH = 3;
 const COL_LENGTH = 3;
+const calcIndex = ({ row, col }: Location) => row * ROW_LENGTH + col;
 
 const calculateWinner = (
   squares: ReadonlyArray<string | null>
-): string | null => {
+): { winner: string; causedSquares: number[] } | null => {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -22,24 +27,21 @@ const calculateWinner = (
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+    const cur = squares[a];
+    if (cur && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return { winner: cur, causedSquares: lines[i] };
     }
   }
   return null;
 };
 
-interface Location {
-  row: number;
-  col: number;
-}
 const calcCurrentMoveLocation = (
   prevSquares: ReadonlyArray<string | null>,
   curSquares: ReadonlyArray<string | null>
 ): Location => {
   for (let r = 0; r < ROW_LENGTH; r++) {
     for (let c = 0; c < COL_LENGTH; c++) {
-      const curIndex = r * ROW_LENGTH + c;
+      const curIndex = calcIndex({ row: r, col: c });
       if (prevSquares[curIndex] !== curSquares[curIndex])
         return { row: r, col: c };
     }
@@ -52,10 +54,14 @@ const toString = (value: Location) => `(${value.row}, ${value.col})`;
 interface SquareProps {
   value: string | null;
   onClick: () => void;
+  winCause: boolean;
 }
 const Square: React.FC<SquareProps> = (props: SquareProps) => {
   return (
-    <button className="square" onClick={props.onClick}>
+    <button
+      className={`square${props.winCause ? " win" : ""}`}
+      onClick={props.onClick}
+    >
       {props.value}
     </button>
   );
@@ -64,10 +70,15 @@ const Square: React.FC<SquareProps> = (props: SquareProps) => {
 interface BoardProps {
   squares: ReadonlyArray<string | null>;
   onClick: (i: number) => void;
+  winCauseSquares?: ReadonlyArray<number>;
 }
 const Board: React.FC<BoardProps> = (props: BoardProps) => {
-  const renderSquare = (i: number) => (
-    <Square value={props.squares[i]} onClick={() => props.onClick(i)} />
+  const renderSquare = (i: number, winCause: boolean) => (
+    <Square
+      value={props.squares[i]}
+      onClick={() => props.onClick(i)}
+      winCause={winCause}
+    />
   );
 
   return (
@@ -76,7 +87,12 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
         <div className="board-row" key={r}>
           {range(COL_LENGTH).map((c) => (
             <React.Fragment key={c}>
-              {renderSquare(r * ROW_LENGTH + c)}
+              {renderSquare(
+                calcIndex({ row: r, col: c }),
+                props.winCauseSquares?.includes(
+                  calcIndex({ row: r, col: c })
+                ) ?? false
+              )}
             </React.Fragment>
           ))}
         </div>
@@ -96,7 +112,9 @@ const Game: React.FC = () => {
   const currentPlayer = xIsNext ? "X" : "O";
   const current = history[stepNumber];
   const winner = calculateWinner(current.squares);
-  const status = winner ? `Winner: ${winner}` : `Next player: ${currentPlayer}`;
+  const status = winner
+    ? `Winner: ${winner.winner}`
+    : `Next player: ${currentPlayer}`;
 
   const jumpTo = (step: number) => {
     setStepNumber(step);
@@ -140,7 +158,11 @@ const Game: React.FC = () => {
   return (
     <div className="game">
       <div className="game-board">
-        <Board squares={current.squares} onClick={(i) => handleClick(i)} />
+        <Board
+          squares={current.squares}
+          onClick={(i) => handleClick(i)}
+          winCauseSquares={winner?.causedSquares}
+        />
       </div>
       <div className="game-info">
         <div>{status}</div>
