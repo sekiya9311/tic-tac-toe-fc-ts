@@ -77,6 +77,16 @@ const Game: React.FC = () => {
   const winner = calculateWinner(current.squares);
   const status = winner ? `Winner: ${winner}` : `Next player: ${currentPlayer}`;
 
+  const moves = history.map((step, move) => {
+    const desc = move ? "Go to move #" + move : "Go to game start";
+    return (
+      <li>
+        {/* TypeScript なので jumpTo 関数が未実装だとちゃんとエラーになる!! */}
+        <button /* onClick={() => jumpTo(move)} */>{desc}</button>
+      </li>
+    );
+  });
+
   const handleClick = (i: number) => {
     const newSquares = current.squares.slice();
     if (calculateWinner(newSquares) || newSquares[i]) {
@@ -94,7 +104,7 @@ const Game: React.FC = () => {
       </div>
       <div className="game-info">
         <div>{status}</div>
-        <ol>{/* TODO */}</ol>
+        <ol>{moves}</ol>
       </div>
     </div>
   );
