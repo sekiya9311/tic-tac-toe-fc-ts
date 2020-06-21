@@ -2,12 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
-const Square: React.FC = () => {
-  return <button className="square">{/* TODO */}</button>;
+interface SquareProps {
+  value: number;
+}
+const Square: React.FC<SquareProps> = (props: SquareProps) => {
+  return <button className="square">{props.value}</button>;
 };
 
 const Board: React.FC = () => {
-  const renderSquare = (i: number) => <Square />;
+  const renderSquare = (i: number) => <Square value={i} />;
 
   const status = "Next player: X";
 
